@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Build - v0.01.00</title>
+<style>
+:root{
+  --bg:#efe9dd;
+  --card:#fbf7ee;
+  --ink:#332a21;
+  --muted:#7c7060;
+  --line:#ded2bd;
+  --accent:#7a3b4d;
+  --accent2:#3f6b57;
+  --gold:#b3873a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,serif;-webkit-font-smoothing:antialiased}
+#wrap{max-width:1760px;margin:0 auto;padding:26px 22px 70px}
+header{margin-bottom:14px}
+.top{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.logo{display:block;width:340px;max-width:100%;height:auto;margin:0}
+.titles{margin-bottom:6px}
+.titles .title{display:block;font:bold 22px/1.1 Georgia,serif;color:var(--accent);letter-spacing:.02em}
+.subtitle{color:var(--muted);font-style:italic;font-size:13px}
+header .actions{margin-left:auto;display:flex;gap:8px;margin-bottom:4px}
+header button{border-color:var(--line);color:var(--muted);padding:5px 14px;font-size:12px;background:var(--card)}
+header button:hover{background:var(--line);color:var(--ink)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 14px;font:12px/1.5 Verdana,sans-serif;color:var(--muted)}
+.stat b{color:var(--ink);font-weight:700}
+.stat.acc b{color:var(--accent)}
+.stat.ok b{color:var(--accent2)}
+.stat.warn b{color:var(--gold)}
+#notice{min-height:22px;margin:8px 0 0;color:var(--accent2);font:13px Verdana,sans-serif}
+#scene{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr) minmax(190px,280px);gap:18px;align-items:start}
+main{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 30px;box-shadow:0 3px 14px rgba(60,45,25,.08);min-width:0;width:100%;max-width:1040px;margin:0 auto}
+aside.side{min-width:0;display:flex;flex-direction:column;gap:14px}
+aside.left{position:sticky;top:14px}
+aside.right{position:sticky;top:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(60,45,25,.05)}
+.panel h3{font:bold 11px/1.4 Verdana,sans-serif;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin:0 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+aside.pc img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer}
+aside.pc .sidenote{font:11px Verdana,sans-serif;color:var(--muted);text-align:center;margin-top:6px}
+#invList{font:12px/1.6 Verdana,sans-serif;color:var(--muted)}
+#invList .empty{font-style:italic}
+#invList .invrow{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line);align-items:center}
+#invList .invrow:last-child{border-bottom:0}
+#invList .invrow span:last-child{color:var(--accent);font-weight:700}
+#invList .invu{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:1px 10px;font:10px Verdana,sans-serif;cursor:pointer}
+#invList .invu:hover{background:var(--accent);color:#fdf9f0}
+#invList .invn{font-style:normal;color:var(--muted);font-weight:400}
+#invList .invcap{font:10px Verdana,sans-serif;color:var(--muted);text-align:right;margin-top:6px}
+#mapCanvas{min-height:180px;border:1px dashed var(--line);border-radius:10px;background:var(--bg);padding:10px;text-align:center}
+svg.townmap{display:block;width:100%;height:auto;max-height:240px;margin:0 auto}
+.mapnode{cursor:pointer}
+.mapnode rect{fill:var(--card);stroke:var(--line);stroke-width:1.5;transition:fill .15s,stroke .15s}
+.mapnode:hover rect{fill:var(--line)}
+.mapnode .mnlabel{fill:var(--muted);font:bold 11px Verdana,sans-serif;pointer-events:none}
+.mapnode.here rect{fill:var(--accent2);stroke:var(--accent2)}
+.mapnode.here .mnlabel{fill:#fdf9f0}
+.mapnode.here .mn-dot{fill:var(--gold);animation:mapPulse 1.6s ease-in-out infinite}
+@keyframes mapPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.mapnode.locked rect{fill:#eae3d4;stroke:#d8ccb4;cursor:not-allowed}
+.mapnode.locked .mnlabel{fill:#b9ab8f}
+.mapnode.locked .mnlock{font-size:8px;pointer-events:none;fill:var(--muted)}
+#mapLoc{font:11px Verdana,sans-serif;color:var(--accent2);text-align:center;margin-top:8px}
+aside.npc .npcname{font:13px Verdana,sans-serif;color:var(--muted);text-align:center}
+@media(max-width:1240px){#scene{grid-template-columns:minmax(180px,260px) minmax(0,1fr) minmax(150px,220px);gap:14px}main{padding:22px 20px}}
+@media(max-width:940px){#scene{grid-template-columns:1fr;gap:14px}aside.left,aside.right{position:static;width:100%;max-width:360px;margin:0 auto}main{margin:0}}
+@media(max-width:560px){main{padding:20px 18px}.top{align-items:flex-start}}
+h2{font-size:20px;margin:0 0 14px;color:var(--accent);letter-spacing:.02em}
+h3{font-size:14px;margin:20px 0 8px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+p{margin:0 0 14px}
+p.quiet{font-style:italic;color:var(--accent);text-align:center;margin:22px 0}
+.rf{color:#b3402c;font-weight:600}
+.nm{color:#7140b0;font-weight:600}
+p.small{font:13px/1.6 Verdana,sans-serif;color:var(--muted)}
+.actions{display:flex;flex-direction:column;gap:9px;margin-top:18px}
+button{cursor:pointer;border:1px solid var(--accent2);background:transparent;color:var(--accent2);border-radius:999px;padding:9px 18px;font:14px Verdana,sans-serif;text-align:left;transition:background .15s,color .15s}
+button:hover{background:var(--accent2);color:#fdf9f0}
+button:disabled{opacity:.45;cursor:not-allowed}
+main .actions button{text-align:center}
+.mirror-stage{width:600px;max-width:100%;aspect-ratio:3/4;margin:0 auto 18px;border:1px solid var(--line);border-radius:12px;box-shadow:0 3px 14px rgba(60,45,25,.08);background-repeat:no-repeat;background-size:cover;background-position:center}
+.call-frame{background:#211c17;border:1px solid #000;border-radius:12px;color:#efe9dd;font:12px/1.6 Verdana,sans-serif;letter-spacing:.18em;padding:10px 14px;text-align:center;margin:0 0 16px;box-shadow:0 3px 14px rgba(60,45,25,.12)}
+button.gbtn{position:relative;display:block;width:100%;border:0;background:transparent;border-radius:10px;padding:0;cursor:pointer}
+button.gbtn img{display:block;width:100%;height:auto;border-radius:10px}
+button.gbtn .gcap{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);text-align:center;pointer-events:none;font:bold 15px/1.2 Verdana,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.55)}
+button.gbtn:hover{background:transparent}
+table{border-collapse:collapse;width:100%;margin:0 0 16px;font:14px Verdana,sans-serif}
+td{border-bottom:1px dashed var(--line);padding:7px 4px}
+td:first-child{color:var(--muted);width:38%}
+ul.night{margin:0 0 14px;padding-left:20px}
+ul.night li{margin-bottom:6px}
+footer{color:var(--muted);font:12px Verdana,sans-serif;margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <div class="top">
+      <img class="logo" src="GUI/Game_Logo.png" alt="">
+      <div class="titles">
+        <span class="subtitle">Demo Build - v0.01.00</span>
+      </div>
+      <div class="actions">
+        <button data-go="save">Save</button>
+        <button data-go="load">Load</button>
+        <button data-go="reset">Reset</button>
+      </div>
+    </div>
+    <div class="bar">
+      <span class="stat acc">Day <b id="statDay"></b></span>
+      <span class="stat ok">Time <b id="statClock"></b></span>
+      <span class="stat warn">Weight <b id="statLbs"></b></span>
+      <span class="stat">Self-control <b id="statSelfcontrol"></b></span>
+      <span class="stat">Self-esteem <b id="statSelf"></b></span>
+      <span class="stat ok">Credits <b id="statCredits"></b></span>
+      <span class="stat">Stomach <b id="statStomach"></b></span>
+      <span class="stat acc">Submission <b id="statSubmission"></b></span>
+      <span class="stat warn">Craving <b id="statCrave"></b></span>
+      <span class="stat">Sweat <b id="statSweat"></b></span>
+    </div>
+    <div id="notice"></div>
+  </header>
+  <div id="scene">
+    <aside class="side pc left" id="pc-side">
+      <div class="panel">
+        <img id="pcImg" alt="You">
+        <div class="sidenote" id="pcCaption"></div>
+      </div>
+      <div class="panel">
+        <h3>Inventory</h3>
+        <div id="invList"></div>
+      </div>
+    </aside>
+    <main id="story"></main>
+    <aside class="side npc right" id="npc-side">
+      <div class="panel">
+        <h3>Map</h3>
+        <div id="mapCanvas"></div>
+        <div id="mapLoc"></div>
+      </div>
+      <div class="panel">
+        <h3>Here</h3>
+        <div class="npcname" id="npcName"></div>
+      </div>
+    </aside>
+  </div>
+  <footer>All rights reserved.</footer>
+</div>
+<noscript>This demo needs JavaScript enabled.</noscript>
+<script src="core/registry.js"></script>
+<script src="core/state.js"></script>
+<script src="core/tiers.js"></script>
+<script src="core/schedule.js"></script>
+<script src="core/dressing.js"></script>
+<script src="core/items.js"></script>
+<script src="core/indulgence.js"></script>
+<script src="locations/commons/pc/commons.js"></script>
+<script src="locations/commons/pc/dining.js"></script>
+<script src="locations/commons/pc/zola.js"></script>
+<script src="locations/classes/pc/classes.js"></script>
+<script src="locations/dorms/morning.js"></script>
+<script src="locations/dorms/mina/dining.js"></script>
+<script src="locations/dorms/mina/morning.js"></script>
+<script src="locations/dorms/mina/scenes.js"></script>
+<script src="locations/dorms/pc/dining.js"></script>
+<script src="locations/dorms/pc/hub.js"></script>
+<script src="locations/dorms/pc/intro.js"></script>
+<script src="locations/dorms/pc/journal.js"></script>
+<script src="locations/dorms/pc/mirror.js"></script>
+<script src="locations/dorms/pc/morning.js"></script>
+<script src="locations/dorms/pc/room.js"></script>
+<script src="locations/dorms/pc/sleep.js"></script>
+<script src="locations/dorms/pc/calls.js"></script>
+<script src="locations/dorms/piper/dining.js"></script>
+<script src="locations/dorms/piper/morning.js"></script>
+<script src="locations/dorms/piper/scenes.js"></script>
+<script src="locations/dorms/piper/talk.js"></script>
+<script src="locations/endings/pc/endings.js"></script>
+<script src="locations/gym/pc/gym.js"></script>
+<script src="locations/library/pc/library.js"></script>
+<script src="locations/quad/pc/travel.js"></script>
+<script src="locations/town/pc/union.js"></script>
+<script src="locations/town/pc/market.js"></script>
+<script src="locations/town/pc/bakery.js"></script>
+<script src="locations/town/pc/park.js"></script>
+<script src="locations/town/pc/clinic.js"></script>
+<script src="locations/town/pc/gate.js"></script>
+<script src="locations/town/pc/resistance.js"></script>
+<script src="core/map.js"></script>
+<script src="core/actions.js"></script>
+<script src="core/ui.js"></script>
+</body>
+</html>
